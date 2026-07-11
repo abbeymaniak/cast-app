@@ -67,6 +67,26 @@ export default function App() {
     }
   };
 
+  const uploadSubtitle = async (videoName, subtitleFile) => {
+    const formData = new FormData();
+    formData.append("video_name", videoName);
+    formData.append("file", subtitleFile);
+
+    try {
+      const res = await fetch(`${SERVER}/api/upload-subtitle`, {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        fetchVideos();
+      } else {
+        console.error("Failed to upload subtitle");
+      }
+    } catch (err) {
+      console.error("Error uploading subtitle", err);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
@@ -108,7 +128,7 @@ export default function App() {
         <h2 style={styles.sectionTitle}>Your Videos</h2>
         <div style={styles.grid}>
           {videos.map((video) => (
-            <div key={video} style={styles.propertyCard}>
+            <div key={video.name} style={styles.propertyCard}>
               <div style={styles.cardPhoto}>
                 <svg
                   width="48"
@@ -124,12 +144,39 @@ export default function App() {
                 </svg>
               </div>
               <div style={styles.cardMeta}>
-                <h3 style={styles.cardTitleText} title={video}>
-                  {video}
+                <h3 style={styles.cardTitleText} title={video.name}>
+                  {video.name}
                 </h3>
                 <p style={styles.cardSubtext}>Video file</p>
+
+                <div style={styles.subtitleSection}>
+                  {video.has_subtitles ? (
+                    <div style={styles.subtitleStatus}>
+                      <span style={styles.badgeSuccess}>CC Subtitles Loaded</span>
+                    </div>
+                  ) : (
+                    <div style={styles.subtitleStatus}>
+                      <span style={styles.badgeMuted}>No Subtitles</span>
+                    </div>
+                  )}
+
+                  <label style={styles.uploadSubtitleLabel}>
+                    {video.has_subtitles ? "Replace Subtitles" : "Upload Subtitles (.srt/.vtt)"}
+                    <input
+                      type="file"
+                      accept=".srt,.vtt"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        if (e.target.files[0]) {
+                          uploadSubtitle(video.name, e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
                 <button
-                  onClick={() => castVideo(video)}
+                  onClick={() => castVideo(video.name)}
                   style={styles.pillButton}
                 >
                   Cast to TV
@@ -275,5 +322,42 @@ const styles = {
   mutedText: {
     color: "#6a6a6a",
     fontSize: "16px",
+  },
+  subtitleSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    marginTop: "8px",
+    paddingTop: "8px",
+    borderTop: "1px solid #f0f0f0",
+  },
+  subtitleStatus: {
+    display: "flex",
+    alignItems: "center",
+  },
+  badgeSuccess: {
+    backgroundColor: "#e6f4ea",
+    color: "#137333",
+    padding: "4px 8px",
+    borderRadius: "4px",
+    fontSize: "12px",
+    fontWeight: 600,
+  },
+  badgeMuted: {
+    backgroundColor: "#f1f3f4",
+    color: "#5f6368",
+    padding: "4px 8px",
+    borderRadius: "4px",
+    fontSize: "12px",
+    fontWeight: 600,
+  },
+  uploadSubtitleLabel: {
+    display: "inline-block",
+    fontSize: "12px",
+    color: "#ff385c",
+    cursor: "pointer",
+    fontWeight: 600,
+    textDecoration: "underline",
+    alignSelf: "flex-start",
   },
 };

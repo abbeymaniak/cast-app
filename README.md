@@ -5,16 +5,23 @@ A self-hosted, lightweight video casting application that allows you to instantl
 ## Architecture
 
 This project is divided into two main components:
-- **Rust Server (`cast-server`)**: Built with `axum` and `tokio`. It serves a WebSocket connection to the TV receiver, handles video uploads, and hosts the receiver interface.
-- **React Client (`client`)**: A beautiful, modern web interface (built with React and Vite) to upload videos and trigger casting to the TV.
+- **Rust Server (`cast-server`)**: Built with `axum` and `tokio`. It serves a WebSocket connection to the TV receiver, handles video and subtitle uploads, and hosts the receiver interface.
+- **React Client (`client`)**: A beautiful, modern web interface (built with React and Vite) to upload videos, upload subtitles, and trigger casting to the TV.
+
+## Features
+
+- **Instant Video Casting**: Cast uploaded videos to your TV receiver screen via WebSockets.
+- **On-the-Fly Subtitle Conversion**: Supports both `.srt` and `.vtt` subtitle files. Uploading `.srt` files will automatically trigger on-the-fly conversion to WebVTT format for optimal browser compatibility.
+- **Subtitle Management**: Check subtitle status (loaded or missing) for each video in the list, upload new tracks, or replace existing ones from the sender app.
 
 ## How it Works
 
-1. Open the "Receiver" web interface on your TV (`http://<SERVER_IP>:3000/receiver`).
+1. Open the "Receiver" web interface on your TV (`http://<YOUR_LOCAL_IP>:3000/receiver`).
 2. Open the React client on your phone or laptop.
 3. Upload a video, which is safely stored on the server.
-4. Click **Cast to TV**. The server sends a WebSocket message to the TV receiver with the video URL.
-5. The TV receiver catches the WebSocket event and instantly begins playback!
+4. (Optional) Upload a subtitle file (`.srt` or `.vtt`) under the video file in the video list.
+5. Click **Cast to TV**. The server sends a WebSocket message to the TV receiver containing both the video URL and subtitle URL.
+6. The TV receiver catches the WebSocket event and instantly begins playback with captions!
 
 ## Getting Started
 
